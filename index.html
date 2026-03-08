@@ -8,146 +8,390 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: 'IBM Plex Sans KR', sans-serif; background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; }
-        
-        /* Pastel Theme Buttons & Elements */
-        .btn-rose { background-color: #FFE4E6; color: #E11D48; }
-        .btn-rose:active { background-color: #FECDD3; }
-        
-        .btn-blue { background-color: #DBEAFE; color: #2563EB; }
-        .btn-blue:active { background-color: #BFDBFE; }
-        
-        .btn-amber { background-color: #FEF3C7; color: #D97706; }
-        .btn-amber:active { background-color: #FDE68A; }
-        
-        .btn-emerald { background-color: #D1FAE5; color: #059669; }
-        .btn-emerald:active { background-color: #A7F3D0; }
+        :root {
+            --rose-soft: #FFF0F2;
+            --rose-mid: #FFDDE2;
+            --rose-accent: #F43F5E;
+            --blue-soft: #EFF6FF;
+            --blue-mid: #DBEAFE;
+            --blue-accent: #3B82F6;
+            --amber-soft: #FFFBEB;
+            --amber-mid: #FEF3C7;
+            --amber-accent: #F59E0B;
+            --emerald-soft: #ECFDF5;
+            --emerald-mid: #D1FAE5;
+            --emerald-accent: #10B981;
+            --indigo-soft: #EEF2FF;
+            --indigo-accent: #6366F1;
+            --surface: #FAFBFF;
+            --card-bg: rgba(255,255,255,0.85);
+            --border: rgba(148,163,184,0.12);
+            --text-primary: #1E293B;
+            --text-muted: #94A3B8;
+        }
 
-        .btn-dark { background-color: #1E293B; color: #FFFFFF; }
-        .btn-dark:active { background-color: #0F172A; }
+        * { box-sizing: border-box; }
 
-        /* Output Styling: Replace Markdown Bold with Custom Style */
-        .output-content b {
-            color: #4F46E5;
-            background-color: #EEF2FF;
-            padding: 2px 4px;
-            border-radius: 4px;
+        body {
+            font-family: 'IBM Plex Sans KR', sans-serif;
+            background-color: var(--surface);
+            background-image:
+                radial-gradient(ellipse 800px 600px at 10% 0%, rgba(165,180,252,0.10) 0%, transparent 70%),
+                radial-gradient(ellipse 600px 500px at 90% 20%, rgba(251,207,232,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 700px 400px at 50% 100%, rgba(167,243,208,0.08) 0%, transparent 70%);
+            background-attachment: fixed;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header-glass {
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(148,163,184,0.10);
+        }
+
+        .logo-pill {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            box-shadow: 0 4px 16px rgba(99,102,241,0.25), 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            box-shadow:
+                0 1px 2px rgba(0,0,0,0.03),
+                0 4px 24px rgba(148,163,184,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+            transition: box-shadow 0.25s ease, transform 0.2s ease;
+        }
+
+        .card:active { transform: scale(0.995); }
+
+        .icon-wrap-rose    { background: var(--rose-soft);    }
+        .icon-wrap-blue    { background: var(--blue-soft);    }
+        .icon-wrap-amber   { background: var(--amber-soft);   }
+        .icon-wrap-emerald { background: var(--emerald-soft); }
+
+        .rate-bubble {
+            background: linear-gradient(145deg, #FFF0F2 0%, #FFF5F7 100%);
+            border: 1px solid rgba(244,63,94,0.10);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .rate-value {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+        }
+        .rate-badge {
+            display: inline-block;
+            background: rgba(244,63,94,0.10);
+            color: #F43F5E;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 100px;
+        }
+
+        .input-field {
+            width: 100%;
+            height: 68px;
+            padding: 0 72px 0 22px;
+            background: #F8FAFC;
+            border: 1.5px solid rgba(148,163,184,0.15);
+            border-radius: 18px;
+            font-size: 18px;
+            font-weight: 700;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            background: #fff;
+            border-color: rgba(99,102,241,0.35);
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.07);
+        }
+        .input-suffix {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            font-weight: 800;
+            color: #CBD5E1;
+        }
+
+        .swap-divider {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+            margin: -6px 0;
+        }
+        .swap-btn {
+            background: #fff;
+            border: 1.5px solid rgba(148,163,184,0.15);
+            border-radius: 50%;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            color: #CBD5E1;
+        }
+
+        .weather-card {
+            background: linear-gradient(145deg, rgba(239,246,255,0.9) 0%, rgba(219,234,254,0.5) 100%);
+            border-color: rgba(59,130,246,0.10);
+        }
+        .weather-input {
+            height: 60px;
+            padding: 0 16px;
+            background: rgba(255,255,255,0.85);
+            border: 1.5px solid rgba(59,130,246,0.15);
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            flex: 1;
+            min-width: 0; /* Important: allows input to shrink in flex container */
+        }
+        .weather-input:focus {
+            border-color: rgba(59,130,246,0.35);
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.07);
+        }
+        .btn-weather {
+            height: 60px;
+            padding: 0 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            background: rgba(255,255,255,0.9);
+            border: 1.5px solid rgba(59,130,246,0.25);
+            color: #3B82F6;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-action {
+            width: 100%;
+            height: 60px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-action:active { transform: scale(0.98); }
+        .btn-action:disabled { opacity: 0.55; cursor: not-allowed; }
+
+        .btn-amber-action {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            color: #92400E;
+            box-shadow: 0 2px 12px rgba(245,158,11,0.15);
+        }
+
+        .btn-emerald-action {
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+            color: #065F46;
+            box-shadow: 0 2px 12px rgba(16,185,129,0.15);
+        }
+
+        .ai-textarea {
+            width: 100%;
+            height: 140px;
+            padding: 16px;
+            background: #F8FAFC;
+            border: 1.5px solid rgba(148,163,184,0.15);
+            border-radius: 18px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+        }
+
+        .output-box {
+            background: linear-gradient(145deg, #F8FAFC 0%, #F1F5F9 100%);
+            border: 1px solid rgba(148,163,184,0.12);
+            border-radius: 20px;
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #334155;
+        }
+        .output-box b {
+            color: var(--indigo-accent);
+            background: var(--indigo-soft);
+            padding: 1px 6px;
+            border-radius: 6px;
             font-weight: 700;
         }
 
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .card { background: white; border-radius: 2.5rem; border: 1px solid #F1F5F9; transition: transform 0.2s; }
-        .card:active { transform: scale(0.99); }
+        .section-label {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stripe-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(148,163,184,0.1) 20%, rgba(148,163,184,0.1) 80%, transparent);
+            margin: 4px 0;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .card { animation: fadeUp 0.4s ease both; }
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.15s; }
+        .card:nth-child(4) { animation-delay: 0.2s; }
     </style>
 </head>
-<body class="antialiased text-slate-800">
+<body>
 
     <div class="min-h-screen flex flex-col">
         <!-- Header -->
-        <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 py-5">
+        <header class="header-glass sticky top-0 z-50 px-6 py-4">
             <div class="max-w-xl mx-auto flex items-center gap-3">
-                <div class="bg-indigo-500 p-2.5 rounded-2xl shadow-lg shadow-indigo-100">
+                <div class="logo-pill p-2.5 rounded-2xl">
                     <i data-lucide="plane" class="text-white w-5 h-5"></i>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight">JapanTravel <span class="text-indigo-500">AI</span></h1>
+                <div>
+                    <h1 class="text-[17px] font-bold tracking-tight leading-none">
+                        JapanTravel <span style="color: var(--indigo-accent);">AI</span>
+                    </h1>
+                    <p class="text-[10px] text-slate-400 font-medium mt-0.5 tracking-wide uppercase">Smart Companion</p>
+                </div>
             </div>
         </header>
 
         <main class="flex-grow max-w-xl mx-auto w-full px-5 py-8 space-y-6">
-            
-            <!-- 1. Exchange Rate Card -->
-            <section class="card p-8 space-y-6">
+
+            <!-- 1. Exchange Rate -->
+            <section class="card p-6 md:p-7 space-y-6">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="bg-rose-50 p-3 rounded-2xl"><i data-lucide="coins" class="text-rose-500 w-6 h-6"></i></div>
-                        <h2 class="font-bold text-lg text-slate-900">실시간 환율</h2>
+                        <div class="icon-wrap-rose p-2.5 rounded-2xl">
+                            <i data-lucide="coins" class="text-rose-400 w-5 h-5"></i>
+                        </div>
+                        <span class="section-label">실시간 환율</span>
                     </div>
-                    <button onclick="fetchRate()" class="p-3 bg-slate-50 rounded-full active:bg-slate-100 transition-colors">
-                        <i data-lucide="refresh-cw" class="w-5 h-5 text-slate-400"></i>
+                    <button onclick="fetchRate()" class="refresh-btn">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 text-slate-400"></i>
                     </button>
                 </div>
 
-                <div class="text-center py-6 bg-rose-50/50 rounded-3xl border border-rose-100/30">
-                    <div id="rate-display" class="text-3xl font-extrabold text-slate-900 tracking-tighter">100 JPY = -- KRW</div>
-                    <p class="text-xs text-rose-400 mt-2 font-bold">참고용으로 확인 바랍니다</p>
+                <div class="rate-bubble py-6 px-4 text-center">
+                    <div id="rate-display" class="rate-value mb-2">100 JPY = -- KRW</div>
+                    <span class="rate-badge">참고용 환율</span>
                 </div>
 
-                <div class="space-y-3">
+                <div class="space-y-2">
                     <div class="relative">
-                        <input type="text" id="input-krw" oninput="handleConvert('KRW')" placeholder="원 (KRW) 입력" class="w-full h-20 pl-6 pr-20 bg-slate-50 border-none rounded-3xl text-xl font-bold focus:ring-2 focus:ring-rose-200 outline-none transition-all">
-                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-sm font-black text-slate-300">KRW</span>
+                        <input type="text" id="input-krw" oninput="handleConvert('KRW')"
+                            placeholder="원 (KRW) 입력" class="input-field">
+                        <span class="input-suffix">KRW</span>
                     </div>
-                    <div class="flex justify-center -my-4 z-10 relative">
-                        <div class="bg-white p-3 rounded-full border border-slate-100 shadow-sm text-slate-300">
-                            <i data-lucide="arrow-down-up" class="w-5 h-5"></i>
+                    <div class="swap-divider">
+                        <div class="swap-btn">
+                            <i data-lucide="arrow-down-up" class="w-4 h-4"></i>
                         </div>
                     </div>
                     <div class="relative">
-                        <input type="text" id="input-jpy" oninput="handleConvert('JPY')" placeholder="엔 (JPY) 입력" class="w-full h-20 pl-6 pr-20 bg-slate-50 border-none rounded-3xl text-xl font-bold focus:ring-2 focus:ring-rose-200 outline-none transition-all">
-                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-sm font-black text-slate-300">JPY</span>
+                        <input type="text" id="input-jpy" oninput="handleConvert('JPY')"
+                            placeholder="엔 (JPY) 입력" class="input-field">
+                        <span class="input-suffix">JPY</span>
                     </div>
                 </div>
             </section>
 
-            <!-- 2. Weather Redirect Card -->
-            <section class="card p-8 bg-blue-50/50 border-blue-100/50">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="bg-white p-3 rounded-2xl shadow-sm"><i data-lucide="cloud-sun" class="text-blue-500 w-6 h-6"></i></div>
-                    <h2 class="font-bold text-lg text-slate-900">현지 날씨 확인</h2>
+            <!-- 2. Weather (Fixed Layout) -->
+            <section class="card weather-card p-6 md:p-7">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="icon-wrap-blue p-2.5 rounded-2xl">
+                        <i data-lucide="cloud-sun" class="text-blue-400 w-5 h-5"></i>
+                    </div>
+                    <span class="section-label">현지 날씨 확인</span>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <input id="weather-city" type="text" placeholder="도시 입력 (예: 도쿄)" class="flex-grow h-16 px-6 bg-white border border-blue-100 rounded-2xl text-base font-bold outline-none focus:ring-2 focus:ring-blue-200">
-                    <button onclick="goWeather()" class="btn-blue h-16 px-8 rounded-2xl font-bold text-base transition-all">이동하기</button>
+                <div class="flex gap-2 w-full">
+                    <input id="weather-city" type="text" placeholder="도시 (예: 도쿄)"
+                        class="weather-input">
+                    <button onclick="goWeather()" class="btn-weather">이동 →</button>
                 </div>
             </section>
 
-            <!-- 3. AI Itinerary Planner -->
-            <section class="card p-8">
-                <div class="flex items-center gap-3 mb-8">
-                    <div class="bg-amber-50 p-3 rounded-2xl"><i data-lucide="map" class="text-amber-500 w-6 h-6"></i></div>
-                    <h2 class="font-bold text-lg text-slate-900">AI 맞춤 일정</h2>
+            <!-- 3. AI Itinerary -->
+            <section class="card p-6 md:p-7 space-y-5">
+                <div class="flex items-center gap-3">
+                    <div class="icon-wrap-amber p-2.5 rounded-2xl">
+                        <i data-lucide="map" class="text-amber-400 w-5 h-5"></i>
+                    </div>
+                    <span class="section-label">AI 맞춤 일정</span>
                 </div>
-                <div class="space-y-4">
-                    <textarea id="plan-query" placeholder="예: 도쿄 3박 4일 자연 위주 일정 추천" class="w-full h-40 p-6 bg-slate-50 border-none rounded-[2rem] text-base font-medium focus:ring-2 focus:ring-amber-200 outline-none resize-none leading-relaxed"></textarea>
-                    <button onclick="createPlan()" id="plan-btn" class="w-full py-5 btn-amber rounded-2xl font-bold text-lg transition-all shadow-md">일정 생성하기</button>
+                <div class="stripe-divider"></div>
+                <div class="space-y-3">
+                    <textarea id="plan-query"
+                        placeholder="예: 오사카 2박 3일 먹방 여행 일정 알려줘"
+                        class="ai-textarea"></textarea>
+                    <button onclick="createPlan()" id="plan-btn" class="btn-action btn-amber-action">
+                        일정 생성하기
+                    </button>
                 </div>
-                <div id="plan-box" class="hidden mt-6 bg-slate-50 p-8 rounded-[2rem] text-[15px] leading-loose whitespace-pre-wrap text-slate-700 output-content"></div>
+                <div id="plan-box" class="hidden output-box whitespace-pre-wrap"></div>
             </section>
 
-            <!-- 4. Natural Translator -->
-            <section class="card p-8">
-                <div class="flex items-center gap-3 mb-8">
-                    <div class="bg-emerald-50 p-3 rounded-2xl"><i data-lucide="languages" class="text-emerald-500 w-6 h-6"></i></div>
-                    <h2 class="font-bold text-lg text-slate-900">자연스러운 번역</h2>
+            <!-- 4. Translator -->
+            <section class="card p-6 md:p-7 space-y-5">
+                <div class="flex items-center gap-3">
+                    <div class="icon-wrap-emerald p-2.5 rounded-2xl">
+                        <i data-lucide="languages" class="text-emerald-400 w-5 h-5"></i>
+                    </div>
+                    <span class="section-label">자연스러운 번역</span>
                 </div>
-                <div class="space-y-4">
-                    <textarea id="trans-query" placeholder="일본어로 바꾸고 싶은 말을 입력하세요." class="w-full h-40 p-6 bg-slate-50 border-none rounded-[2rem] text-base font-medium focus:ring-2 focus:ring-emerald-200 outline-none resize-none leading-relaxed"></textarea>
-                    <button onclick="runTranslate()" id="trans-btn" class="w-full py-5 btn-emerald rounded-2xl font-bold text-lg transition-all shadow-md">번역하기</button>
+                <div class="stripe-divider"></div>
+                <div class="space-y-3">
+                    <textarea id="trans-query"
+                        placeholder="일본어로 번역할 내용을 입력하세요."
+                        class="ai-textarea"></textarea>
+                    <button onclick="runTranslate()" id="trans-btn" class="btn-action btn-emerald-action">
+                        번역하기
+                    </button>
                 </div>
-                <div id="trans-box" class="hidden mt-6 bg-slate-50 p-8 rounded-[2rem] text-[15px] leading-loose whitespace-pre-wrap text-slate-700 output-content"></div>
+                <div id="trans-box" class="hidden output-box whitespace-pre-wrap"></div>
             </section>
 
         </main>
 
-        <footer class="py-12 text-center text-slate-300 font-bold text-[10px] tracking-[0.3em] uppercase">
-            Japan Travel AI · 2026
+        <footer class="py-10 text-center" style="color: #CBD5E1; font-size: 10px; font-weight: 700; letter-spacing: 0.3em;">
+            JAPAN TRAVEL TOOLS · 2026
         </footer>
     </div>
 
     <script>
         lucide.createIcons();
 
+        const apiKey = "";
         let currentRate = 0;
 
         function formatNumber(num) {
             if (!num) return "";
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
-
-        function unformatNumber(str) {
-            return str.replace(/,/g, "");
-        }
+        function unformatNumber(str) { return str.replace(/,/g, ""); }
 
         async function fetchRate() {
             try {
@@ -155,8 +399,9 @@
                 const data = await res.json();
                 currentRate = data.rates.JPY;
                 const jpy100ToKrw = (1 / currentRate) * 100;
-                document.getElementById('rate-display').innerText = `100 JPY = ${formatNumber(jpy100ToKrw.toFixed(2))} KRW`;
-            } catch (e) { console.error(e); }
+                document.getElementById('rate-display').innerText =
+                    `100 JPY = ${formatNumber(jpy100ToKrw.toFixed(2))} KRW`;
+            } catch (e) { console.error("Rate Fetch Error"); }
         }
         fetchRate();
 
@@ -164,7 +409,6 @@
             if (!currentRate) return;
             const krwInput = document.getElementById('input-krw');
             const jpyInput = document.getElementById('input-jpy');
-
             if (type === 'KRW') {
                 const rawVal = unformatNumber(krwInput.value);
                 if (isNaN(parseFloat(rawVal))) { jpyInput.value = ''; krwInput.value = ''; return; }
@@ -184,52 +428,81 @@
             window.open(`https://www.google.com/search?q=${encodeURIComponent(city + ' 날씨')}`, '_blank');
         }
 
-        async function callGemini(prompt, useSearch = false) {
-            const res = await fetch('/api/gemini', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt, useSearch })
-            });
-            return await res.json();
+        async function callGeminiAPI(query, systemInstruction, useSearch = false) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: query }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+            if (useSearch) payload.tools = [{ "google_search": {} }];
+
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error();
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "결과가 없습니다.";
+                } catch (e) {
+                    await new Promise(res => setTimeout(res, Math.pow(2, i) * 1000));
+                }
+            }
+            throw new Error("API Failed");
         }
 
         async function createPlan() {
             const query = document.getElementById('plan-query').value;
             const btn = document.getElementById('plan-btn');
             const box = document.getElementById('plan-box');
-            if(!query) return;
+            if (!query) return;
 
-            btn.disabled = true; btn.innerText = "정보를 찾는 중...";
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin mr-2"></i> 로딩 중...`;
+            lucide.createIcons();
             box.classList.add('hidden');
 
-            // System prompt instructions to avoid markdown characters and use tags instead
-            const prompt = `${query}\n\n[작성 규칙]\n1. 마크다운 기호(###, **, - 등)를 절대 사용하지 마세요.\n2. 강조가 필요한 핵심 단어나 장소명은 반드시 <b>강조내용</b> 형식으로 감싸주세요.\n3. 줄바꿈을 적절히 사용하여 읽기 편하게 작성하세요.\n4. 구글 검색을 통해 현재 가장 인기 있는 정보를 반영하세요.`;
+            const sys = `당신은 일본 여행 전문가입니다. [규칙] 1. 마크다운 스타일링(**, #) 금지. 2. 핵심 장소/맛집은 <b>내용</b> 태그 사용. 3. 구글 검색으로 최신 정보 반영. 4. 할루시네이션 없도록 검토 후 답변. `;
 
             try {
-                const res = await callGemini(prompt, true);
-                box.innerHTML = res.text.replace(/\n/g, '<br>');
+                const text = await callGeminiAPI(query, sys, true);
+                box.innerHTML = text.replace(/\n/g, '<br>');
                 box.classList.remove('hidden');
-            } catch(e) { box.innerText = "오류가 발생했습니다."; box.classList.remove('hidden'); }
-            finally { btn.disabled = false; btn.innerText = "일정 생성하기"; }
+            } catch(e) {
+                box.innerText = "일시적인 오류입니다. 다시 시도해 주세요.";
+                box.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "일정 생성하기";
+            }
         }
 
         async function runTranslate() {
             const query = document.getElementById('trans-query').value;
             const btn = document.getElementById('trans-btn');
             const box = document.getElementById('trans-box');
-            if(!query) return;
+            if (!query) return;
 
-            btn.disabled = true; btn.innerText = "번역 중...";
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin mr-2"></i> 번역 중...`;
+            lucide.createIcons();
             box.classList.add('hidden');
 
-            const prompt = `"${query}"를 일본인이 들었을 때 가장 자연스러운 표현으로 번역해줘.\n\n[작성 규칙]\n1. 마크다운 기호(###, **)를 절대 사용하지 마세요.\n2. 번역된 일본어 문장은 <b>일본어문장</b> 형식으로 강조하세요.\n3. 한글 발음과 상황 팁을 포함하세요.`;
+            const sys = `자연스러운 일본어 번역기. [규칙] 1. 마크다운 금지. 2. 번역문은 <b>일본어</b> 형식. 3. 발음과 팁 포함.`;
 
             try {
-                const res = await callGemini(prompt, false);
-                box.innerHTML = res.text.replace(/\n/g, '<br>');
+                const text = await callGeminiAPI(query, sys, false);
+                box.innerHTML = text.replace(/\n/g, '<br>');
                 box.classList.remove('hidden');
-            } catch(e) { box.innerText = "오류가 발생했습니다."; box.classList.remove('hidden'); }
-            finally { btn.disabled = false; btn.innerText = "번역하기"; }
+            } catch(e) {
+                box.innerText = "번역에 실패했습니다.";
+                box.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "번역하기";
+            }
         }
     </script>
 </body>
