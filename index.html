@@ -4,100 +4,196 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Japan Travel AI</title>
-    <!-- IBM Plex Sans KR & Tailwind -->
+    <!-- IBM Plex Sans KR -->
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: 'IBM Plex Sans KR', sans-serif; background-color: #F9FAFB; }
-        .pastel-indigo { background-color: #EEF2FF; color: #4338CA; }
-        .pastel-emerald { background-color: #ECFDF5; color: #047857; }
-        .loader { border-top-color: #6366F1; animation: spinner 0.6s linear infinite; }
-        @keyframes spinner { to { transform: rotate(360deg); } }
+        body { font-family: 'IBM Plex Sans KR', sans-serif; background-color: #F8FAFC; }
+        .pastel-rose { background-color: #FFF1F2; color: #E11D48; }
+        .pastel-blue { background-color: #EFF6FF; color: #2563EB; }
+        .pastel-amber { background-color: #FFFBEB; color: #D97706; }
+        .pastel-emerald { background-color: #ECFDF5; color: #059669; }
+        /* Remove number arrow */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        /* Smooth transitions */
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.05); }
     </style>
 </head>
-<body class="antialiased text-gray-800">
+<body class="antialiased text-slate-800">
 
-    <!-- Header -->
-    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 py-4">
-        <div class="max-w-4xl mx-auto flex items-center gap-3">
-            <div class="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-100">
-                <i data-lucide="plane" class="text-white w-5 h-5"></i>
-            </div>
-            <h1 class="text-lg font-bold">JapanTravel <span class="text-indigo-600">AI</span></h1>
-        </div>
-    </header>
-
-    <main class="max-w-4xl mx-auto px-6 py-8 space-y-8">
-        <!-- Top Dashboard: Exchange & Weather -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                <div class="flex items-center gap-2 mb-4 text-gray-400">
-                    <i data-lucide="coins" class="w-4 h-4"></i>
-                    <span class="text-xs font-bold uppercase tracking-widest">실시간 환율</span>
+    <div class="min-h-screen flex flex-col">
+        <!-- Sticky Header -->
+        <header class="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-slate-100 px-4 sm:px-6 py-4">
+            <div class="max-w-3xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="bg-rose-500 p-2 rounded-xl shadow-lg shadow-rose-100">
+                        <i data-lucide="plane" class="text-white w-5 h-5"></i>
+                    </div>
+                    <h1 class="text-lg font-bold tracking-tight">JapanTravel <span class="text-rose-500">AI</span></h1>
                 </div>
-                <div id="exchange-rate" class="text-2xl font-bold text-gray-900">1,000 KRW = -- JPY</div>
+                <div class="hidden sm:flex items-center gap-1.5 text-[10px] font-bold text-emerald-500 uppercase tracking-widest bg-emerald-50 px-3 py-1.5 rounded-full">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> 시스템 정상
+                </div>
             </div>
-            <div class="bg-indigo-600 p-6 rounded-[2rem] shadow-lg text-white">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2 opacity-80">
-                        <i data-lucide="cloud-sun" class="w-4 h-4"></i>
-                        <span class="text-xs font-bold uppercase tracking-widest">현지 날씨</span>
+        </header>
+
+        <main class="flex-grow max-w-3xl mx-auto w-full px-4 sm:px-6 py-8 space-y-6">
+            
+            <!-- 1. Exchange Rate Card -->
+            <section class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="pastel-rose p-2.5 rounded-2xl"><i data-lucide="coins" class="w-5 h-5"></i></div>
+                        <h2 class="font-bold text-slate-900 text-lg">실시간 환율</h2>
+                    </div>
+                    <button onclick="fetchRate()" class="p-2 hover:bg-slate-50 rounded-full transition-colors active:scale-90">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 text-slate-400"></i>
+                    </button>
+                </div>
+
+                <div class="text-center py-4 bg-rose-50/30 rounded-[2rem] border border-rose-100/20">
+                    <div id="rate-display" class="text-3xl font-bold text-slate-900 tracking-tighter">100 JPY = -- KRW</div>
+                    <p class="text-[11px] text-slate-400 mt-2 font-semibold">1,000원 단위 쉼표가 적용됩니다</p>
+                </div>
+
+                <!-- Converter -->
+                <div class="grid grid-cols-1 gap-3 pt-2">
+                    <div class="relative group">
+                        <input type="text" id="input-krw" oninput="handleConvert('KRW')" placeholder="원 (KRW) 입력" class="w-full pl-6 pr-16 py-4.5 bg-slate-50 border-2 border-transparent rounded-2xl text-base font-bold focus:bg-white focus:border-rose-100 transition-all outline-none">
+                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300">KRW</span>
+                    </div>
+                    <div class="flex justify-center -my-2 z-10">
+                        <div class="bg-white p-2.5 rounded-full border border-slate-100 shadow-sm text-slate-300">
+                            <i data-lucide="arrow-down-up" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <input type="text" id="input-jpy" oninput="handleConvert('JPY')" placeholder="엔 (JPY) 입력" class="w-full pl-6 pr-16 py-4.5 bg-slate-50 border-2 border-transparent rounded-2xl text-base font-bold focus:bg-white focus:border-rose-100 transition-all outline-none">
+                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300">JPY</span>
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <input id="weather-input" type="text" placeholder="도시 입력 (예: 도쿄)" class="bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-sm w-full placeholder:text-white/50 focus:outline-none">
-                    <button onclick="getWeather()" class="bg-white/20 p-2 rounded-xl hover:bg-white/30"><i data-lucide="search" class="w-4 h-4"></i></button>
+            </section>
+
+            <!-- 2. Weather & Search (Simplified to Redirect) -->
+            <section class="bg-blue-600 p-8 rounded-[2.5rem] shadow-xl shadow-blue-100 text-white relative overflow-hidden group card-hover">
+                <div class="absolute -right-6 -top-6 opacity-10 group-hover:rotate-12 transition-transform duration-700">
+                    <i data-lucide="cloud-sun" size="160"></i>
                 </div>
-                <div id="weather-result" class="mt-3 text-sm font-medium opacity-90">도시를 검색해보세요.</div>
-            </div>
-        </div>
+                <div class="relative z-10 space-y-5">
+                    <div class="flex items-center gap-2 opacity-80">
+                        <i data-lucide="map-pin" class="w-4 h-4"></i>
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em]">External Weather Link</span>
+                    </div>
+                    <h3 class="text-xl font-bold">지역 날씨 확인</h3>
+                    <div class="flex gap-2">
+                        <input id="weather-city" type="text" placeholder="도시명 입력 (예: 후쿠오카)" class="flex-1 bg-white/10 border border-white/20 rounded-2xl px-5 py-4 text-sm font-bold placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/40 backdrop-blur-md">
+                        <button onclick="goWeather()" class="bg-white text-blue-600 px-6 rounded-2xl hover:bg-blue-50 transition-colors font-bold text-sm active:scale-95 shadow-lg">이동</button>
+                    </div>
+                </div>
+            </section>
 
-        <!-- AI Planner -->
-        <section class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="pastel-indigo p-3 rounded-2xl"><i data-lucide="navigation" class="w-6 h-6"></i></div>
-                <h2 class="text-xl font-bold">맞춤 일정 플래너</h2>
-            </div>
-            <div class="flex flex-col md:flex-row gap-3 mb-6">
-                <input id="plan-input" type="text" placeholder="예: 오사카 2박 3일 맛집 탐방" class="flex-1 px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-indigo-100 outline-none">
-                <button onclick="generatePlan()" id="plan-btn" class="bg-gray-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-black transition-all">일정 생성</button>
-            </div>
-            <div id="plan-result" class="hidden bg-gray-50 p-6 rounded-3xl text-sm leading-relaxed whitespace-pre-wrap"></div>
-        </section>
+            <!-- 3. AI Smart Planner -->
+            <section class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 card-hover">
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="pastel-amber p-3 rounded-2xl"><i data-lucide="calendar-days" class="w-6 h-6"></i></div>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">맞춤 일정 생성기</h2>
+                        <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5">Gemini 2.5 Flash Grounding</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="relative">
+                        <textarea id="plan-query" placeholder="예: 도쿄 3박 4일 자연 위주 일정 추천&#10;혹은: 오늘 점심에 시부야에서 갈만한 맛집 3곳" class="w-full h-32 px-6 py-5 bg-slate-50 border-none rounded-[2rem] text-sm font-semibold focus:ring-2 focus:ring-amber-100 outline-none resize-none leading-relaxed"></textarea>
+                    </div>
+                    <button onclick="createPlan()" id="plan-btn" class="w-full bg-slate-900 text-white py-4.5 rounded-2xl font-bold hover:bg-black transition-all shadow-lg shadow-slate-200 active:scale-[0.98]">일정 생성하기</button>
+                </div>
+                <div id="plan-box" class="hidden mt-6 bg-amber-50/20 border border-amber-100/30 p-6 sm:p-8 rounded-[2rem] text-sm leading-relaxed whitespace-pre-wrap text-slate-700"></div>
+            </section>
 
-        <!-- Translator -->
-        <section class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="pastel-emerald p-3 rounded-2xl"><i data-lucide="languages" class="w-6 h-6"></i></div>
-                <h2 class="text-xl font-bold">자연스러운 번역</h2>
-            </div>
-            <textarea id="trans-input" placeholder="번역할 내용을 입력하세요 (예: 고수 빼주세요)" class="w-full h-32 p-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] mb-4 text-sm outline-none focus:ring-2 focus:ring-emerald-100 resize-none"></textarea>
-            <button onclick="translateText()" id="trans-btn" class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold hover:bg-emerald-600 transition-all">번역하기</button>
-            <div id="trans-result" class="hidden mt-4 p-6 bg-emerald-50/30 border border-emerald-100 rounded-2xl text-sm whitespace-pre-wrap"></div>
-        </section>
-    </main>
+            <!-- 4. Natural Translator -->
+            <section class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 card-hover">
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="pastel-emerald p-3 rounded-2xl"><i data-lucide="languages" class="w-6 h-6"></i></div>
+                    <h2 class="text-xl font-bold text-slate-900">자연스러운 번역</h2>
+                </div>
+                <div class="space-y-4">
+                    <textarea id="trans-query" placeholder="일본어로 자연스럽게 바꾸고 싶은 한국어 문장을 입력하세요." class="w-full h-32 px-6 py-5 bg-slate-50 border-none rounded-[2rem] text-sm font-semibold focus:ring-2 focus:ring-emerald-100 outline-none resize-none leading-relaxed"></textarea>
+                    <button onclick="runTranslate()" id="trans-btn" class="w-full bg-emerald-500 text-white py-4.5 rounded-2xl font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100 active:scale-[0.98]">번역하기</button>
+                </div>
+                <div id="trans-box" class="hidden mt-4 p-6 bg-emerald-50/30 border border-emerald-100 rounded-[2rem] text-sm whitespace-pre-wrap text-slate-700 font-medium"></div>
+            </section>
 
-    <footer class="py-12 text-center text-gray-400 text-xs font-medium">
-        © 2026 JapanTravel Tools
-    </footer>
+        </main>
+
+        <footer class="py-12 text-center">
+            <p class="text-[10px] text-slate-300 font-black uppercase tracking-[0.3em]">Japan Travel AI · 2026</p>
+        </footer>
+    </div>
 
     <script>
-        // Initialize Icons
         lucide.createIcons();
 
-        // 1. Exchange Rate
-        async function fetchExchange() {
+        let currentRate = 0; // 1 KRW = X JPY
+
+        // 1,000 단위 콤마 포맷 함수
+        function formatNumber(num) {
+            if (!num) return "";
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // 콤마 제거 함수
+        function unformatNumber(str) {
+            return str.replace(/,/g, "");
+        }
+
+        // 환율 정보 가져오기
+        async function fetchRate() {
             try {
                 const res = await fetch('https://api.frankfurter.app/latest?from=KRW&to=JPY');
                 const data = await res.json();
-                document.getElementById('exchange-rate').innerText = `1,000 KRW = ${(data.rates.JPY * 100).toFixed(2)} JPY`;
-            } catch (e) { console.error(e); }
+                currentRate = data.rates.JPY;
+                const jpy100ToKrw = (1 / currentRate) * 100;
+                document.getElementById('rate-display').innerText = `100 JPY = ${formatNumber(jpy100ToKrw.toFixed(2))} KRW`;
+            } catch (e) { console.error("Rate Error", e); }
         }
-        fetchExchange();
+        fetchRate();
 
-        // 2. Helper for API
-        async function askAI(prompt, useSearch = false) {
+        // 실시간 환전 계산
+        function handleConvert(type) {
+            if (!currentRate) return;
+            const krwInput = document.getElementById('input-krw');
+            const jpyInput = document.getElementById('input-jpy');
+
+            if (type === 'KRW') {
+                const rawVal = unformatNumber(krwInput.value);
+                const numVal = parseFloat(rawVal);
+                if (isNaN(numVal)) { jpyInput.value = ''; krwInput.value = ''; return; }
+                
+                krwInput.value = formatNumber(rawVal);
+                jpyInput.value = formatNumber((numVal * currentRate).toFixed(0));
+            } else {
+                const rawVal = unformatNumber(jpyInput.value);
+                const numVal = parseFloat(rawVal);
+                if (isNaN(numVal)) { krwInput.value = ''; jpyInput.value = ''; return; }
+                
+                jpyInput.value = formatNumber(rawVal);
+                krwInput.value = formatNumber((numVal / currentRate).toFixed(0));
+            }
+        }
+
+        // 날씨 리다이렉트
+        function goWeather() {
+            const city = document.getElementById('weather-city').value;
+            if (!city) return;
+            // 구글 날씨 검색으로 연결 (가장 정확하고 빠름)
+            const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(city + ' 날씨')}`;
+            window.open(searchUrl, '_blank');
+        }
+
+        // API 공통 호출
+        async function callGemini(prompt, useSearch = false) {
             const res = await fetch('/api/gemini', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -107,45 +203,50 @@
             return await res.json();
         }
 
-        // 3. Weather
-        async function getWeather() {
-            const city = document.getElementById('weather-input').value;
-            if(!city) return;
-            const res = await askAI(`현재 일본 ${city}의 날씨 정보(기온, 상태)를 한 문장으로 알려줘.`, true);
-            document.getElementById('weather-result').innerText = res.text;
-        }
-
-        // 4. Planner
-        async function generatePlan() {
-            const input = document.getElementById('plan-input').value;
+        // 일정 생성
+        async function createPlan() {
+            const query = document.getElementById('plan-query').value;
             const btn = document.getElementById('plan-btn');
-            const resultDiv = document.getElementById('plan-result');
-            if(!input) return;
+            const box = document.getElementById('plan-box');
+            if(!query) return;
 
-            btn.disabled = true; btn.innerText = "생성 중...";
+            btn.disabled = true; btn.innerText = "최신 정보를 찾는 중...";
+            box.classList.add('hidden');
+
+            const systemPrompt = `당신은 일본 여행 전문 가이드입니다. 사용자의 요청이 "점심 메뉴 추천"처럼 단기적인지, "3박 4일 일정"처럼 장기적인지 파악하여 대응하세요. 구글 검색을 활용하여 현재 영업 중인 맛집, 최신 축제, 동선을 고려한 최적의 리스트를 제공하세요. 장소마다 특징과 선정 이유를 짧게 덧붙여주세요.`;
+
             try {
-                const res = await askAI(`${input} 일정을 짜줘. 구글 검색을 활용해서 실제 맛집과 현재 정보를 반영해줘.`, true);
-                resultDiv.innerText = res.text;
-                resultDiv.classList.remove('hidden');
-            } catch(e) { resultDiv.innerText = "오류가 발생했습니다."; }
-            finally { btn.disabled = false; btn.innerText = "일정 생성"; }
+                const res = await callGemini(`요청: "${query}"\n\n${systemPrompt}`, true);
+                box.innerText = res.text;
+                box.classList.remove('hidden');
+            } catch(e) { 
+                box.innerText = "일정 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+                box.classList.remove('hidden');
+            } finally { 
+                btn.disabled = false; btn.innerText = "일정 생성하기"; 
+            }
         }
 
-        // 5. Translator
-        async function translateText() {
-            const input = document.getElementById('trans-input').value;
+        // 번역
+        async function runTranslate() {
+            const query = document.getElementById('trans-query').value;
             const btn = document.getElementById('trans-btn');
-            const resultDiv = document.getElementById('trans-result');
-            if(!input) return;
+            const box = document.getElementById('trans-box');
+            if(!query) return;
 
-            btn.disabled = true; btn.innerText = "번역 중...";
-            const prompt = `일본 여행 통역사처럼 번역해줘. 문장은: "${input}"\n형식:\n[번역]\n[발음]\n[팁]`;
+            btn.disabled = true; btn.innerText = "자연스럽게 다듬는 중...";
+            box.classList.add('hidden');
+
             try {
-                const res = await askAI(prompt, false);
-                resultDiv.innerText = res.text;
-                resultDiv.classList.remove('hidden');
-            } catch(e) { resultDiv.innerText = "오류가 발생했습니다."; }
-            finally { btn.disabled = false; btn.innerText = "번역하기"; }
+                const res = await callGemini(`"${query}"를 일본인이 들었을 때 가장 자연스럽고 친절한 일본어(데스/마스체)로 번역하고, 한글 발음과 상황별 사용 팁을 알려줘.`, false);
+                box.innerText = res.text;
+                box.classList.remove('hidden');
+            } catch(e) {
+                box.innerText = "번역 중 오류가 발생했습니다.";
+                box.classList.remove('hidden');
+            } finally {
+                btn.disabled = false; btn.innerText = "번역하기";
+            }
         }
     </script>
 </body>
